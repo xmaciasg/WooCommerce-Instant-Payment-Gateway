@@ -15,7 +15,7 @@ class HighRiskShop_Instant_Payment_Gateway_Mercuryo extends WC_Payment_Gateway {
 
     public function __construct() {
         $this->id                 = 'highriskshop-instant-payment-gateway-mercuryo';
-        $this->icon = esc_url($this->get_option('icon_url'));
+        $this->icon = sanitize_url($this->get_option('icon_url'));
         $this->method_title       = esc_html__('Instant Approval Payment Gateway with Instant Payouts (mercuryo.io)', 'highriskshopgateway'); // Escaping title
         $this->method_description = esc_html__('Instant Approval High Risk Merchant Gateway with instant payouts to your USDT POLYGON wallet using mercuryo.io infrastructure', 'highriskshopgateway'); // Escaping description
         $this->has_fields         = false;
@@ -23,12 +23,12 @@ class HighRiskShop_Instant_Payment_Gateway_Mercuryo extends WC_Payment_Gateway {
         $this->init_form_fields();
         $this->init_settings();
 
-        $this->title       = $this->get_option('title');
-        $this->description = $this->get_option('description');
+        $this->title       = sanitize_text_field($this->get_option('title'));
+        $this->description = sanitize_text_field($this->get_option('description'));
 
         // Use the configured settings for redirect and icon URLs
         $this->mercuryoio_wallet_address = sanitize_text_field($this->get_option('mercuryoio_wallet_address'));
-        $this->icon_url     = esc_url($this->get_option('icon_url'));
+        $this->icon_url     = sanitize_url($this->get_option('icon_url'));
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
     }
@@ -75,7 +75,7 @@ class HighRiskShop_Instant_Payment_Gateway_Mercuryo extends WC_Payment_Gateway {
 		$hrs_mercuryoio_total = $order->get_total();
 		$hrs_mercuryoio_nonce = wp_create_nonce( 'hrs_mercuryoio_nonce_' . $order_id );
 		$hrs_mercuryoio_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $hrs_mercuryoio_nonce,), rest_url('custom-route/v1/hrs-mercuryoio/'));
-		$hrs_mercuryoio_email = urlencode($order->get_billing_email());
+		$hrs_mercuryoio_email = urlencode(sanitize_email($order->get_billing_email()));
 		$hrs_mercuryoio_final_total = $hrs_mercuryoio_total;
 	
 $hrs_mercuryoio_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->mercuryoio_wallet_address .'&callback=' . urlencode($hrs_mercuryoio_callback));
@@ -91,10 +91,12 @@ if (is_wp_error($hrs_mercuryoio_gen_wallet)) {
  // Check if decoding was successful
     if ($hrs_mercuryoio_wallet_decbody && isset($hrs_mercuryoio_wallet_decbody['address_in'])) {
         // Store the address_in as a variable
-        $hrs_mercuryoio_gen_addressIn = $hrs_mercuryoio_wallet_decbody['address_in'];
-		$hrs_mercuryoio_gen_callback = $hrs_mercuryoio_wallet_decbody['callback_url'];
+        $hrs_mercuryoio_gen_addressIn = wp_kses_post($hrs_mercuryoio_wallet_decbody['address_in']);
+        $hrs_mercuryoio_gen_polygon_addressIn = sanitize_text_field($hrs_mercuryoio_wallet_decbody['polygon_address_in']);
+		$hrs_mercuryoio_gen_callback = sanitize_url($hrs_mercuryoio_wallet_decbody['callback_url']);
 		// Save $mercuryoioresponse in order meta data
     $order->update_meta_data('highriskshop_mercuryoio_tracking_address', $hrs_mercuryoio_gen_addressIn);
+    $order->update_meta_data('highriskshop_mercuryoio_polygon_temporary_order_wallet_address', $hrs_mercuryoio_gen_polygon_addressIn);
     $order->update_meta_data('highriskshop_mercuryoio_callback', $hrs_mercuryoio_gen_callback);
 	$order->update_meta_data('highriskshop_mercuryoio_converted_amount', $hrs_mercuryoio_final_total);
     $order->save();
@@ -108,7 +110,7 @@ if (is_wp_error($hrs_mercuryoio_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_mercuryoio_gen_addressIn . '&amount=' . $hrs_mercuryoio_final_total . '&provider=mercuryo&email=' . $hrs_mercuryoio_email . '&currency=' . $hrs_mercuryoio_currency,
+            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_mercuryoio_gen_addressIn . '&amount=' . (float)$hrs_mercuryoio_final_total . '&provider=mercuryo&email=' . $hrs_mercuryoio_email . '&currency=' . $hrs_mercuryoio_currency,
         );
     }
 
@@ -127,6 +129,7 @@ function hrs_mercuryoio_change_order_status_rest_endpoint() {
     register_rest_route( 'custom-route/v1', '/hrs-mercuryoio/', array(
         'methods'  => 'GET',
         'callback' => 'hrs_mercuryoio_change_order_status_callback',
+        'permission_callback' => '__return_true',
     ));
 }
 add_action( 'rest_api_init', 'hrs_mercuryoio_change_order_status_rest_endpoint' );

@@ -21,5 +21,5 @@ if (!defined('ABSPATH')) {
 		include_once(plugin_dir_path(__FILE__) . 'includes/class-highriskshop-instant-payment-gateway-banxa.php'); // Include the payment gateway class
 		include_once(plugin_dir_path(__FILE__) . 'includes/class-highriskshop-instant-payment-gateway-guardarian.php'); // Include the payment gateway class
 		include_once(plugin_dir_path(__FILE__) . 'includes/class-highriskshop-instant-payment-gateway-particle.php'); // Include the payment gateway class
-		include_once(plugin_dir_path(__FILE__) . 'includes/class-highriskshop-instant-payment-gateway-swaps.php'); // Include the payment gateway class
+		include_once(plugin_dir_path(__FILE__) . 'includes/class-highriskshop-instant-payment-gateway-rampnetwork.php'); // Include the payment gateway class
 ?>

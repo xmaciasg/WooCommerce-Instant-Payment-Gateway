@@ -34,7 +34,7 @@ Powerful plugin for both WooCommerce that allows you to accept payments for your
 
 == Installation ==
 
-* After installing and activating this plugin go to WooCommerce >>> Settings >>> Payments >>> HighRiskShop.COM Paymnets gateway
+* After installing and activating this plugin go to WooCommerce >>> Settings >>> Payments >>> HighRiskShop.COM Payments gateway
 * Activate the desired payment provider gateway and insert your USDT (Polygon) wallet address to receive instant payouts.
 * Insert desired display label and description for the payment gateway.
 * Save settings and you will be ready to accept Credit Cards or Debit Cards Visa, Mastercard, Amex, Google Pay and Apple Pay instantly!
@@ -62,12 +62,6 @@ Please contact HighRiskShop.com support team to guide you.
 
 1. screenshot-1.png
 2. screenshot-2.png
-3. screenshot-3.png
-4. screenshot-4.png
-5. screenshot-5.png
-6. screenshot-6.png
-7. screenshot-7.png
-8. screenshot-8.png
 
 == Changelog ==
 

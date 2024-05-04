@@ -14,7 +14,7 @@ class HighRiskShop_Instant_Payment_Gateway_Moonpay extends WC_Payment_Gateway {
 
     public function __construct() {
         $this->id                 = 'highriskshop-instant-payment-gateway-moonpay';
-        $this->icon = esc_url($this->get_option('icon_url'));
+        $this->icon = sanitize_url($this->get_option('icon_url'));
         $this->method_title       = esc_html__('Instant Approval Payment Gateway with Instant Payouts (moonpay.com)', 'highriskshopgateway'); // Escaping title
         $this->method_description = esc_html__('Instant Approval High Risk Merchant Gateway with instant payouts to your USDT POLYGON wallet using moonpay.com infrastructure', 'highriskshopgateway'); // Escaping description
         $this->has_fields         = false;
@@ -22,12 +22,12 @@ class HighRiskShop_Instant_Payment_Gateway_Moonpay extends WC_Payment_Gateway {
         $this->init_form_fields();
         $this->init_settings();
 
-        $this->title       = $this->get_option('title');
-        $this->description = $this->get_option('description');
+        $this->title       = sanitize_text_field($this->get_option('title'));
+        $this->description = sanitize_text_field($this->get_option('description'));
 
         // Use the configured settings for redirect and icon URLs
         $this->moonpaycom_wallet_address = sanitize_text_field($this->get_option('moonpaycom_wallet_address'));
-        $this->icon_url     = esc_url($this->get_option('icon_url'));
+        $this->icon_url     = sanitize_url($this->get_option('icon_url'));
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
     }
@@ -74,7 +74,7 @@ class HighRiskShop_Instant_Payment_Gateway_Moonpay extends WC_Payment_Gateway {
 		$hrs_moonpaycom_total = $order->get_total();
 		$hrs_moonpaycom_nonce = wp_create_nonce( 'hrs_moonpaycom_nonce_' . $order_id );
 		$hrs_moonpaycom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $hrs_moonpaycom_nonce,), rest_url('custom-route/v1/hrs-moonpaycom/'));
-		$hrs_moonpaycom_email = urlencode($order->get_billing_email());
+		$hrs_moonpaycom_email = urlencode(sanitize_email($order->get_billing_email()));
 		$hrs_moonpaycom_final_total = $hrs_moonpaycom_total;
 	
 $hrs_moonpaycom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->moonpaycom_wallet_address .'&callback=' . urlencode($hrs_moonpaycom_callback));
@@ -90,10 +90,12 @@ if (is_wp_error($hrs_moonpaycom_gen_wallet)) {
  // Check if decoding was successful
     if ($hrs_moonpaycom_wallet_decbody && isset($hrs_moonpaycom_wallet_decbody['address_in'])) {
         // Store the address_in as a variable
-        $hrs_moonpaycom_gen_addressIn = $hrs_moonpaycom_wallet_decbody['address_in'];
-		$hrs_moonpaycom_gen_callback = $hrs_moonpaycom_wallet_decbody['callback_url'];
+        $hrs_moonpaycom_gen_addressIn = wp_kses_post($hrs_moonpaycom_wallet_decbody['address_in']);
+        $hrs_moonpaycom_gen_polygon_addressIn = sanitize_text_field($hrs_moonpaycom_wallet_decbody['polygon_address_in']);
+		$hrs_moonpaycom_gen_callback = sanitize_url($hrs_moonpaycom_wallet_decbody['callback_url']);
 		// Save $moonpaycomresponse in order meta data
     $order->update_meta_data('highriskshop_moonpaycom_tracking_address', $hrs_moonpaycom_gen_addressIn);
+    $order->update_meta_data('highriskshop_moonpaycom_polygon_temporary_order_wallet_address', $hrs_moonpaycom_gen_polygon_addressIn);
     $order->update_meta_data('highriskshop_moonpaycom_callback', $hrs_moonpaycom_gen_callback);
 	$order->update_meta_data('highriskshop_moonpaycom_converted_amount', $hrs_moonpaycom_final_total);
     $order->save();
@@ -107,7 +109,7 @@ if (is_wp_error($hrs_moonpaycom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_moonpaycom_gen_addressIn . '&amount=' . $hrs_moonpaycom_final_total . '&provider=moonpay&email=' . $hrs_moonpaycom_email . '&currency=' . $hrs_moonpaycom_currency,
+            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_moonpaycom_gen_addressIn . '&amount=' . (float)$hrs_moonpaycom_final_total . '&provider=moonpay&email=' . $hrs_moonpaycom_email . '&currency=' . $hrs_moonpaycom_currency,
         );
     }
 
@@ -126,6 +128,7 @@ function hrs_moonpaycom_change_order_status_rest_endpoint() {
     register_rest_route( 'custom-route/v1', '/hrs-moonpaycom/', array(
         'methods'  => 'GET',
         'callback' => 'hrs_moonpaycom_change_order_status_callback',
+        'permission_callback' => '__return_true',
     ));
 }
 add_action( 'rest_api_init', 'hrs_moonpaycom_change_order_status_rest_endpoint' );

@@ -14,7 +14,7 @@ class HighRiskShop_Instant_Payment_Gateway_Transak extends WC_Payment_Gateway {
 
     public function __construct() {
         $this->id                 = 'highriskshop-instant-payment-gateway-transak';
-        $this->icon = esc_url($this->get_option('icon_url'));
+        $this->icon = sanitize_url($this->get_option('icon_url'));
         $this->method_title       = esc_html__('Instant Approval Payment Gateway with Instant Payouts (transak.com)', 'highriskshopgateway'); // Escaping title
         $this->method_description = esc_html__('Instant Approval High Risk Merchant Gateway with instant payouts to your USDT POLYGON wallet using transak.com infrastructure', 'highriskshopgateway'); // Escaping description
         $this->has_fields         = false;
@@ -22,12 +22,12 @@ class HighRiskShop_Instant_Payment_Gateway_Transak extends WC_Payment_Gateway {
         $this->init_form_fields();
         $this->init_settings();
 
-        $this->title       = $this->get_option('title');
-        $this->description = $this->get_option('description');
+        $this->title       = sanitize_text_field($this->get_option('title'));
+        $this->description = sanitize_text_field($this->get_option('description'));
 
         // Use the configured settings for redirect and icon URLs
         $this->transakcom_wallet_address = sanitize_text_field($this->get_option('transakcom_wallet_address'));
-        $this->icon_url     = esc_url($this->get_option('icon_url'));
+        $this->icon_url     = sanitize_url($this->get_option('icon_url'));
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
     }
@@ -74,7 +74,7 @@ class HighRiskShop_Instant_Payment_Gateway_Transak extends WC_Payment_Gateway {
 		$hrs_transakcom_total = $order->get_total();
 		$hrs_transakcom_nonce = wp_create_nonce( 'hrs_transakcom_nonce_' . $order_id );
 		$hrs_transakcom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $hrs_transakcom_nonce,), rest_url('custom-route/v1/hrs-transakcom/'));
-		$hrs_transakcom_email = urlencode($order->get_billing_email());
+		$hrs_transakcom_email = urlencode(sanitize_email($order->get_billing_email()));
 		$hrs_transakcom_final_total = $hrs_transakcom_total;
 	
 $hrs_transakcom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->transakcom_wallet_address .'&callback=' . urlencode($hrs_transakcom_callback));
@@ -90,10 +90,12 @@ if (is_wp_error($hrs_transakcom_gen_wallet)) {
  // Check if decoding was successful
     if ($hrs_transakcom_wallet_decbody && isset($hrs_transakcom_wallet_decbody['address_in'])) {
         // Store the address_in as a variable
-        $hrs_transakcom_gen_addressIn = $hrs_transakcom_wallet_decbody['address_in'];
-		$hrs_transakcom_gen_callback = $hrs_transakcom_wallet_decbody['callback_url'];
+        $hrs_transakcom_gen_addressIn = wp_kses_post($hrs_transakcom_wallet_decbody['address_in']);
+        $hrs_transakcom_gen_polygon_addressIn = sanitize_text_field($hrs_transakcom_wallet_decbody['polygon_address_in']);
+		$hrs_transakcom_gen_callback = sanitize_url($hrs_transakcom_wallet_decbody['callback_url']);
 		// Save $transakcomresponse in order meta data
     $order->update_meta_data('highriskshop_transakcom_tracking_address', $hrs_transakcom_gen_addressIn);
+    $order->update_meta_data('highriskshop_transakcom_polygon_temporary_order_wallet_address', $hrs_transakcom_gen_polygon_addressIn);
     $order->update_meta_data('highriskshop_transakcom_callback', $hrs_transakcom_gen_callback);
 	$order->update_meta_data('highriskshop_transakcom_converted_amount', $hrs_transakcom_final_total);
     $order->save();
@@ -107,7 +109,7 @@ if (is_wp_error($hrs_transakcom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_transakcom_gen_addressIn . '&amount=' . $hrs_transakcom_final_total . '&provider=transak&email=' . $hrs_transakcom_email . '&currency=' . $hrs_transakcom_currency,
+            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_transakcom_gen_addressIn . '&amount=' . (float)$hrs_transakcom_final_total . '&provider=transak&email=' . $hrs_transakcom_email . '&currency=' . $hrs_transakcom_currency,
         );
     }
 
@@ -126,6 +128,7 @@ function hrs_transakcom_change_order_status_rest_endpoint() {
     register_rest_route( 'custom-route/v1', '/hrs-transakcom/', array(
         'methods'  => 'GET',
         'callback' => 'hrs_transakcom_change_order_status_callback',
+        'permission_callback' => '__return_true',
     ));
 }
 add_action( 'rest_api_init', 'hrs_transakcom_change_order_status_rest_endpoint' );
