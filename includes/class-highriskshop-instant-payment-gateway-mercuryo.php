@@ -74,7 +74,7 @@ class HighRiskShop_Instant_Payment_Gateway_Mercuryo extends WC_Payment_Gateway {
         $highriskshopgateway_mercuryoio_currency = get_woocommerce_currency();
 		$highriskshopgateway_mercuryoio_total = $order->get_total();
 		$highriskshopgateway_mercuryoio_nonce = wp_create_nonce( 'highriskshopgateway_mercuryoio_nonce_' . $order_id );
-		$highriskshopgateway_mercuryoio_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_mercuryoio_nonce,), rest_url('custom-route/v1/hrs-mercuryoio/'));
+		$highriskshopgateway_mercuryoio_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_mercuryoio_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-mercuryoio/'));
 		$highriskshopgateway_mercuryoio_email = urlencode(sanitize_email($order->get_billing_email()));
 		$highriskshopgateway_mercuryoio_final_total = $highriskshopgateway_mercuryoio_total;
 	
@@ -126,7 +126,7 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 // Add custom endpoint for changing order status
 function highriskshopgateway_mercuryoio_change_order_status_rest_endpoint() {
     // Register custom route
-    register_rest_route( 'custom-route/v1', '/hrs-mercuryoio/', array(
+    register_rest_route( 'highriskshopgateway/v1', '/highriskshopgateway-mercuryoio/', array(
         'methods'  => 'GET',
         'callback' => 'highriskshopgateway_mercuryoio_change_order_status_callback',
         'permission_callback' => '__return_true',

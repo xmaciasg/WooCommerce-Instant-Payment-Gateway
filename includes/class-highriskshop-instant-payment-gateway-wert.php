@@ -73,7 +73,7 @@ class HighRiskShop_Instant_Payment_Gateway_Wert extends WC_Payment_Gateway {
         $highriskshopgateway_wertio_currency = get_woocommerce_currency();
 		$highriskshopgateway_wertio_total = $order->get_total();
 		$highriskshopgateway_wertio_nonce = wp_create_nonce( 'highriskshopgateway_wertio_nonce_' . $order_id );
-		$highriskshopgateway_wertio_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_wertio_nonce,), rest_url('custom-route/v1/hrs-wertio/'));
+		$highriskshopgateway_wertio_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_wertio_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-wertio/'));
 		$highriskshopgateway_wertio_email = urlencode(sanitize_email($order->get_billing_email()));
 		
 		if ($highriskshopgateway_wertio_currency === 'USD') {
@@ -148,7 +148,7 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 // Add custom endpoint for changing order status
 function highriskshopgateway_wertio_change_order_status_rest_endpoint() {
     // Register custom route
-    register_rest_route( 'custom-route/v1', '/hrs-wertio/', array(
+    register_rest_route( 'highriskshopgateway/v1', '/highriskshopgateway-wertio/', array(
         'methods'  => 'GET',
         'callback' => 'highriskshopgateway_wertio_change_order_status_callback',
         'permission_callback' => '__return_true',

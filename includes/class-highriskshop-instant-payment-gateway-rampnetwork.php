@@ -73,7 +73,7 @@ class HighRiskShop_Instant_Payment_Gateway_Rampnetwork extends WC_Payment_Gatewa
         $highriskshopgateway_rampnetwork_currency = get_woocommerce_currency();
 		$highriskshopgateway_rampnetwork_total = $order->get_total();
 		$highriskshopgateway_rampnetwork_nonce = wp_create_nonce( 'highriskshopgateway_rampnetwork_nonce_' . $order_id );
-		$highriskshopgateway_rampnetwork_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_rampnetwork_nonce,), rest_url('custom-route/v1/hrs-rampnetwork/'));
+		$highriskshopgateway_rampnetwork_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_rampnetwork_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-rampnetwork/'));
 		$highriskshopgateway_rampnetwork_email = urlencode(sanitize_email($order->get_billing_email()));
 		
 		if ($highriskshopgateway_rampnetwork_currency === 'USD') {
@@ -148,7 +148,7 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 // Add custom endpoint for changing order status
 function highriskshopgateway_rampnetwork_change_order_status_rest_endpoint() {
     // Register custom route
-    register_rest_route( 'custom-route/v1', '/hrs-rampnetwork/', array(
+    register_rest_route( 'highriskshopgateway/v1', '/highriskshopgateway-rampnetwork/', array(
         'methods'  => 'GET',
         'callback' => 'highriskshopgateway_rampnetwork_change_order_status_callback',
         'permission_callback' => '__return_true',

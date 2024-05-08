@@ -73,7 +73,7 @@ class HighRiskShop_Instant_Payment_Gateway_Guardarian extends WC_Payment_Gateway
         $highriskshopgateway_guardariancom_currency = get_woocommerce_currency();
 		$highriskshopgateway_guardariancom_total = $order->get_total();
 		$highriskshopgateway_guardariancom_nonce = wp_create_nonce( 'highriskshopgateway_guardariancom_nonce_' . $order_id );
-		$highriskshopgateway_guardariancom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_guardariancom_nonce,), rest_url('custom-route/v1/hrs-guardariancom/'));
+		$highriskshopgateway_guardariancom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_guardariancom_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-guardariancom/'));
 		$highriskshopgateway_guardariancom_email = urlencode(sanitize_email($order->get_billing_email()));
 		$highriskshopgateway_guardariancom_final_total = $highriskshopgateway_guardariancom_total;
 	
@@ -125,7 +125,7 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 // Add custom endpoint for changing order status
 function highriskshopgateway_guardariancom_change_order_status_rest_endpoint() {
     // Register custom route
-    register_rest_route( 'custom-route/v1', '/hrs-guardariancom/', array(
+    register_rest_route( 'highriskshopgateway/v1', '/highriskshopgateway-guardariancom/', array(
         'methods'  => 'GET',
         'callback' => 'highriskshopgateway_guardariancom_change_order_status_callback',
         'permission_callback' => '__return_true',

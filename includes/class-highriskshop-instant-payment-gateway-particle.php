@@ -73,7 +73,7 @@ class HighRiskShop_Instant_Payment_Gateway_Particle extends WC_Payment_Gateway {
         $highriskshopgateway_particlenetwork_currency = get_woocommerce_currency();
 		$highriskshopgateway_particlenetwork_total = $order->get_total();
 		$highriskshopgateway_particlenetwork_nonce = wp_create_nonce( 'highriskshopgateway_particlenetwork_nonce_' . $order_id );
-		$highriskshopgateway_particlenetwork_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_particlenetwork_nonce,), rest_url('custom-route/v1/hrs-particlenetwork/'));
+		$highriskshopgateway_particlenetwork_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_particlenetwork_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-particlenetwork/'));
 		$highriskshopgateway_particlenetwork_email = urlencode(sanitize_email($order->get_billing_email()));
 		$highriskshopgateway_particlenetwork_final_total = $highriskshopgateway_particlenetwork_total;
 	
@@ -125,7 +125,7 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 // Add custom endpoint for changing order status
 function highriskshopgateway_particlenetwork_change_order_status_rest_endpoint() {
     // Register custom route
-    register_rest_route( 'custom-route/v1', '/hrs-particlenetwork/', array(
+    register_rest_route( 'highriskshopgateway/v1', '/highriskshopgateway-particlenetwork/', array(
         'methods'  => 'GET',
         'callback' => 'highriskshopgateway_particlenetwork_change_order_status_callback',
         'permission_callback' => '__return_true',

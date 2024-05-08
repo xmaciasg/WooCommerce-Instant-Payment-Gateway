@@ -73,7 +73,7 @@ class HighRiskShop_Instant_Payment_Gateway_Banxa extends WC_Payment_Gateway {
         $highriskshopgateway_banxacom_currency = get_woocommerce_currency();
 		$highriskshopgateway_banxacom_total = $order->get_total();
 		$highriskshopgateway_banxacom_nonce = wp_create_nonce( 'highriskshopgateway_banxacom_nonce_' . $order_id );
-		$highriskshopgateway_banxacom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_banxacom_nonce,), rest_url('custom-route/v1/hrs-banxacom/'));
+		$highriskshopgateway_banxacom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_banxacom_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-banxacom/'));
 		$highriskshopgateway_banxacom_email = urlencode(sanitize_email($order->get_billing_email()));
 		$highriskshopgateway_banxacom_final_total = $highriskshopgateway_banxacom_total;
 	
@@ -125,7 +125,7 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 // Add custom endpoint for changing order status
 function highriskshopgateway_banxacom_change_order_status_rest_endpoint() {
     // Register custom route
-    register_rest_route( 'custom-route/v1', '/hrs-banxacom/', array(
+    register_rest_route( 'highriskshopgateway/v1', '/highriskshopgateway-banxacom/', array(
         'methods'  => 'GET',
         'callback' => 'highriskshopgateway_banxacom_change_order_status_callback',
         'permission_callback' => '__return_true',
