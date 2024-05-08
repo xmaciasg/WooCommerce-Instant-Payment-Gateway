@@ -31,6 +31,7 @@ Powerful plugin for both WooCommerce that allows you to accept payments for your
 
 [youtube https://www.youtube.com/watch?v=xt0o7J9MVd4]
 
+The plugin and offered service through [HighRiskShop.COM Instant Payment Gateway API](https://www.highriskshop.com/instant-payment-gateway/) is subject to the [service terms](https://www.highriskshop.com/info/terms/) and [Privacy Policy](https://www.highriskshop.com/info/privacy-policy/).
 
 == Installation ==
 

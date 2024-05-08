@@ -3,9 +3,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('plugins_loaded', 'init_hrs_guardarian_gateway');
+add_action('plugins_loaded', 'init_highriskshopgateway_guardarian_gateway');
 
-function init_hrs_guardarian_gateway() {
+function init_highriskshopgateway_guardarian_gateway() {
     if (!class_exists('WC_Payment_Gateway')) {
         return;
     }
@@ -70,34 +70,34 @@ class HighRiskShop_Instant_Payment_Gateway_Guardarian extends WC_Payment_Gateway
     }
     public function process_payment($order_id) {
         $order = wc_get_order($order_id);
-        $hrs_guardariancom_currency = get_woocommerce_currency();
-		$hrs_guardariancom_total = $order->get_total();
-		$hrs_guardariancom_nonce = wp_create_nonce( 'hrs_guardariancom_nonce_' . $order_id );
-		$hrs_guardariancom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $hrs_guardariancom_nonce,), rest_url('custom-route/v1/hrs-guardariancom/'));
-		$hrs_guardariancom_email = urlencode(sanitize_email($order->get_billing_email()));
-		$hrs_guardariancom_final_total = $hrs_guardariancom_total;
+        $highriskshopgateway_guardariancom_currency = get_woocommerce_currency();
+		$highriskshopgateway_guardariancom_total = $order->get_total();
+		$highriskshopgateway_guardariancom_nonce = wp_create_nonce( 'highriskshopgateway_guardariancom_nonce_' . $order_id );
+		$highriskshopgateway_guardariancom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_guardariancom_nonce,), rest_url('custom-route/v1/hrs-guardariancom/'));
+		$highriskshopgateway_guardariancom_email = urlencode(sanitize_email($order->get_billing_email()));
+		$highriskshopgateway_guardariancom_final_total = $highriskshopgateway_guardariancom_total;
 	
-$hrs_guardariancom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->guardariancom_wallet_address .'&callback=' . urlencode($hrs_guardariancom_callback));
+$highriskshopgateway_guardariancom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->guardariancom_wallet_address .'&callback=' . urlencode($highriskshopgateway_guardariancom_callback));
 
-if (is_wp_error($hrs_guardariancom_gen_wallet)) {
+if (is_wp_error($highriskshopgateway_guardariancom_gen_wallet)) {
     // Handle error
     wc_add_notice(__('Wallet error:', 'woocommerce') . __('Payment could not be processed due to incorrect payout wallet settings, please contact website admin', 'hrsguardariancom'), 'error');
     return null;
 } else {
-	$hrs_guardariancom_wallet_body = wp_remote_retrieve_body($hrs_guardariancom_gen_wallet);
-	$hrs_guardariancom_wallet_decbody = json_decode($hrs_guardariancom_wallet_body, true);
+	$highriskshopgateway_guardariancom_wallet_body = wp_remote_retrieve_body($highriskshopgateway_guardariancom_gen_wallet);
+	$highriskshopgateway_guardariancom_wallet_decbody = json_decode($highriskshopgateway_guardariancom_wallet_body, true);
 
  // Check if decoding was successful
-    if ($hrs_guardariancom_wallet_decbody && isset($hrs_guardariancom_wallet_decbody['address_in'])) {
+    if ($highriskshopgateway_guardariancom_wallet_decbody && isset($highriskshopgateway_guardariancom_wallet_decbody['address_in'])) {
         // Store the address_in as a variable
-        $hrs_guardariancom_gen_addressIn = wp_kses_post($hrs_guardariancom_wallet_decbody['address_in']);
-        $hrs_guardariancom_gen_polygon_addressIn = sanitize_text_field($hrs_guardariancom_wallet_decbody['polygon_address_in']);
-		$hrs_guardariancom_gen_callback = sanitize_url($hrs_guardariancom_wallet_decbody['callback_url']);
+        $highriskshopgateway_guardariancom_gen_addressIn = wp_kses_post($highriskshopgateway_guardariancom_wallet_decbody['address_in']);
+        $highriskshopgateway_guardariancom_gen_polygon_addressIn = sanitize_text_field($highriskshopgateway_guardariancom_wallet_decbody['polygon_address_in']);
+		$highriskshopgateway_guardariancom_gen_callback = sanitize_url($highriskshopgateway_guardariancom_wallet_decbody['callback_url']);
 		// Save $guardariancomresponse in order meta data
-    $order->update_meta_data('highriskshop_guardariancom_tracking_address', $hrs_guardariancom_gen_addressIn);
-    $order->update_meta_data('highriskshop_guardariancom_polygon_temporary_order_wallet_address', $hrs_guardariancom_gen_polygon_addressIn);
-    $order->update_meta_data('highriskshop_guardariancom_callback', $hrs_guardariancom_gen_callback);
-	$order->update_meta_data('highriskshop_guardariancom_converted_amount', $hrs_guardariancom_final_total);
+    $order->update_meta_data('highriskshop_guardariancom_tracking_address', $highriskshopgateway_guardariancom_gen_addressIn);
+    $order->update_meta_data('highriskshop_guardariancom_polygon_temporary_order_wallet_address', $highriskshopgateway_guardariancom_gen_polygon_addressIn);
+    $order->update_meta_data('highriskshop_guardariancom_callback', $highriskshopgateway_guardariancom_gen_callback);
+	$order->update_meta_data('highriskshop_guardariancom_converted_amount', $highriskshopgateway_guardariancom_final_total);
     $order->save();
     } else {
         wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed, please try again (wallet address error)', 'guardariancom'), 'error');
@@ -109,7 +109,7 @@ if (is_wp_error($hrs_guardariancom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_guardariancom_gen_addressIn . '&amount=' . (float)$hrs_guardariancom_final_total . '&provider=guardarian&email=' . $hrs_guardariancom_email . '&currency=' . $hrs_guardariancom_currency,
+            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_guardariancom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_guardariancom_final_total . '&provider=guardarian&email=' . $highriskshopgateway_guardariancom_email . '&currency=' . $highriskshopgateway_guardariancom_currency,
         );
     }
 
@@ -123,23 +123,23 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 }
 
 // Add custom endpoint for changing order status
-function hrs_guardariancom_change_order_status_rest_endpoint() {
+function highriskshopgateway_guardariancom_change_order_status_rest_endpoint() {
     // Register custom route
     register_rest_route( 'custom-route/v1', '/hrs-guardariancom/', array(
         'methods'  => 'GET',
-        'callback' => 'hrs_guardariancom_change_order_status_callback',
+        'callback' => 'highriskshopgateway_guardariancom_change_order_status_callback',
         'permission_callback' => '__return_true',
     ));
 }
-add_action( 'rest_api_init', 'hrs_guardariancom_change_order_status_rest_endpoint' );
+add_action( 'rest_api_init', 'highriskshopgateway_guardariancom_change_order_status_rest_endpoint' );
 
 // Callback function to change order status
-function hrs_guardariancom_change_order_status_callback( $request ) {
+function highriskshopgateway_guardariancom_change_order_status_callback( $request ) {
     $order_id = absint($request->get_param( 'order_id' ));
-	$hrs_guardariancomgetnonce = sanitize_text_field($request->get_param( 'nonce' ));
+	$highriskshopgateway_guardariancomgetnonce = sanitize_text_field($request->get_param( 'nonce' ));
 	
 	 // Verify nonce
-    if ( empty( $hrs_guardariancomgetnonce ) || ! wp_verify_nonce( $hrs_guardariancomgetnonce, 'hrs_guardariancom_nonce_' . $order_id ) ) {
+    if ( empty( $highriskshopgateway_guardariancomgetnonce ) || ! wp_verify_nonce( $highriskshopgateway_guardariancomgetnonce, 'highriskshopgateway_guardariancom_nonce_' . $order_id ) ) {
         return new WP_Error( 'invalid_nonce', __( 'Invalid nonce.', 'highriskshop-instant-payment-gateway-guardarian' ), array( 'status' => 403 ) );
     }
 

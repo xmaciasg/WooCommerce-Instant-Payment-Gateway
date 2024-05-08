@@ -3,9 +3,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('plugins_loaded', 'init_hrs_rampnetwork_gateway');
+add_action('plugins_loaded', 'init_highriskshopgateway_rampnetwork_gateway');
 
-function init_hrs_rampnetwork_gateway() {
+function init_highriskshopgateway_rampnetwork_gateway() {
     if (!class_exists('WC_Payment_Gateway')) {
         return;
     }
@@ -70,57 +70,57 @@ class HighRiskShop_Instant_Payment_Gateway_Rampnetwork extends WC_Payment_Gatewa
     }
     public function process_payment($order_id) {
         $order = wc_get_order($order_id);
-        $hrs_rampnetwork_currency = get_woocommerce_currency();
-		$hrs_rampnetwork_total = $order->get_total();
-		$hrs_rampnetwork_nonce = wp_create_nonce( 'hrs_rampnetwork_nonce_' . $order_id );
-		$hrs_rampnetwork_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $hrs_rampnetwork_nonce,), rest_url('custom-route/v1/hrs-rampnetwork/'));
-		$hrs_rampnetwork_email = urlencode(sanitize_email($order->get_billing_email()));
+        $highriskshopgateway_rampnetwork_currency = get_woocommerce_currency();
+		$highriskshopgateway_rampnetwork_total = $order->get_total();
+		$highriskshopgateway_rampnetwork_nonce = wp_create_nonce( 'highriskshopgateway_rampnetwork_nonce_' . $order_id );
+		$highriskshopgateway_rampnetwork_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_rampnetwork_nonce,), rest_url('custom-route/v1/hrs-rampnetwork/'));
+		$highriskshopgateway_rampnetwork_email = urlencode(sanitize_email($order->get_billing_email()));
 		
-		if ($hrs_rampnetwork_currency === 'USD') {
-        $hrs_rampnetwork_final_total = $hrs_rampnetwork_total;
+		if ($highriskshopgateway_rampnetwork_currency === 'USD') {
+        $highriskshopgateway_rampnetwork_final_total = $highriskshopgateway_rampnetwork_total;
 		} else {
 		
-$hrs_rampnetwork_response = wp_remote_get('https://api.cryptapi.io/polygon/usdt/convert/?value=' . $hrs_rampnetwork_total . '&from=' . strtolower($hrs_rampnetwork_currency));
+$highriskshopgateway_rampnetwork_response = wp_remote_get('https://api.highriskshop.com/control/convert.php?value=' . $highriskshopgateway_rampnetwork_total . '&from=' . strtolower($highriskshopgateway_rampnetwork_currency));
 
-if (is_wp_error($hrs_rampnetwork_response)) {
+if (is_wp_error($highriskshopgateway_rampnetwork_response)) {
     // Handle error
     wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed due to failed currency conversion process, please try again', 'hrsrampnetwork'), 'error');
     return null;
 } else {
 
-$hrs_rampnetwork_body = wp_remote_retrieve_body($hrs_rampnetwork_response);
-$hrs_rampnetwork_conversion_resp = json_decode($hrs_rampnetwork_body, true);
+$highriskshopgateway_rampnetwork_body = wp_remote_retrieve_body($highriskshopgateway_rampnetwork_response);
+$highriskshopgateway_rampnetwork_conversion_resp = json_decode($highriskshopgateway_rampnetwork_body, true);
 
-if ($hrs_rampnetwork_conversion_resp && isset($hrs_rampnetwork_conversion_resp['value_coin'])) {
+if ($highriskshopgateway_rampnetwork_conversion_resp && isset($highriskshopgateway_rampnetwork_conversion_resp['value_coin'])) {
     // Escape output
-    $hrs_rampnetwork_final_total	= sanitize_text_field($hrs_rampnetwork_conversion_resp['value_coin']);      
+    $highriskshopgateway_rampnetwork_final_total	= sanitize_text_field($highriskshopgateway_rampnetwork_conversion_resp['value_coin']);      
 } else {
     wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed, please try again (unsupported store currency)', 'hrsrampnetwork'), 'error');
     return null;
 }	
 		}
 		}
-$hrs_rampnetwork_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->rampnetwork_wallet_address .'&callback=' . urlencode($hrs_rampnetwork_callback));
+$highriskshopgateway_rampnetwork_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->rampnetwork_wallet_address .'&callback=' . urlencode($highriskshopgateway_rampnetwork_callback));
 
-if (is_wp_error($hrs_rampnetwork_gen_wallet)) {
+if (is_wp_error($highriskshopgateway_rampnetwork_gen_wallet)) {
     // Handle error
     wc_add_notice(__('Wallet error:', 'woocommerce') . __('Payment could not be processed due to incorrect payout wallet settings, please contact website admin', 'hrsrampnetwork'), 'error');
     return null;
 } else {
-	$hrs_rampnetwork_wallet_body = wp_remote_retrieve_body($hrs_rampnetwork_gen_wallet);
-	$hrs_rampnetwork_wallet_decbody = json_decode($hrs_rampnetwork_wallet_body, true);
+	$highriskshopgateway_rampnetwork_wallet_body = wp_remote_retrieve_body($highriskshopgateway_rampnetwork_gen_wallet);
+	$highriskshopgateway_rampnetwork_wallet_decbody = json_decode($highriskshopgateway_rampnetwork_wallet_body, true);
 
  // Check if decoding was successful
-    if ($hrs_rampnetwork_wallet_decbody && isset($hrs_rampnetwork_wallet_decbody['address_in'])) {
+    if ($highriskshopgateway_rampnetwork_wallet_decbody && isset($highriskshopgateway_rampnetwork_wallet_decbody['address_in'])) {
         // Store the address_in as a variable
-        $hrs_rampnetwork_gen_addressIn = wp_kses_post($hrs_rampnetwork_wallet_decbody['address_in']);
-        $hrs_rampnetwork_gen_polygon_addressIn = sanitize_text_field($hrs_rampnetwork_wallet_decbody['polygon_address_in']);
-		$hrs_rampnetwork_gen_callback = sanitize_url($hrs_rampnetwork_wallet_decbody['callback_url']);
+        $highriskshopgateway_rampnetwork_gen_addressIn = wp_kses_post($highriskshopgateway_rampnetwork_wallet_decbody['address_in']);
+        $highriskshopgateway_rampnetwork_gen_polygon_addressIn = sanitize_text_field($highriskshopgateway_rampnetwork_wallet_decbody['polygon_address_in']);
+		$highriskshopgateway_rampnetwork_gen_callback = sanitize_url($highriskshopgateway_rampnetwork_wallet_decbody['callback_url']);
 		// Save $rampnetworkresponse in order meta data
-    $order->update_meta_data('highriskshop_rampnetwork_tracking_address', $hrs_rampnetwork_gen_addressIn);
-    $order->update_meta_data('highriskshop_rampnetwork_polygon_temporary_order_wallet_address', $hrs_rampnetwork_gen_polygon_addressIn);
-    $order->update_meta_data('highriskshop_rampnetwork_callback', $hrs_rampnetwork_gen_callback);
-	$order->update_meta_data('highriskshop_rampnetwork_converted_amount', $hrs_rampnetwork_final_total);
+    $order->update_meta_data('highriskshop_rampnetwork_tracking_address', $highriskshopgateway_rampnetwork_gen_addressIn);
+    $order->update_meta_data('highriskshop_rampnetwork_polygon_temporary_order_wallet_address', $highriskshopgateway_rampnetwork_gen_polygon_addressIn);
+    $order->update_meta_data('highriskshop_rampnetwork_callback', $highriskshopgateway_rampnetwork_gen_callback);
+	$order->update_meta_data('highriskshop_rampnetwork_converted_amount', $highriskshopgateway_rampnetwork_final_total);
     $order->save();
     } else {
         wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed, please try again (wallet address error)', 'rampnetwork'), 'error');
@@ -132,7 +132,7 @@ if (is_wp_error($hrs_rampnetwork_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_rampnetwork_gen_addressIn . '&amount=' . (float)$hrs_rampnetwork_final_total . '&provider=rampnetwork&email=' . $hrs_rampnetwork_email . '&currency=' . $hrs_rampnetwork_currency,
+            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_rampnetwork_gen_addressIn . '&amount=' . (float)$highriskshopgateway_rampnetwork_final_total . '&provider=rampnetwork&email=' . $highriskshopgateway_rampnetwork_email . '&currency=' . $highriskshopgateway_rampnetwork_currency,
         );
     }
 
@@ -146,23 +146,23 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 }
 
 // Add custom endpoint for changing order status
-function hrs_rampnetwork_change_order_status_rest_endpoint() {
+function highriskshopgateway_rampnetwork_change_order_status_rest_endpoint() {
     // Register custom route
     register_rest_route( 'custom-route/v1', '/hrs-rampnetwork/', array(
         'methods'  => 'GET',
-        'callback' => 'hrs_rampnetwork_change_order_status_callback',
+        'callback' => 'highriskshopgateway_rampnetwork_change_order_status_callback',
         'permission_callback' => '__return_true',
     ));
 }
-add_action( 'rest_api_init', 'hrs_rampnetwork_change_order_status_rest_endpoint' );
+add_action( 'rest_api_init', 'highriskshopgateway_rampnetwork_change_order_status_rest_endpoint' );
 
 // Callback function to change order status
-function hrs_rampnetwork_change_order_status_callback( $request ) {
+function highriskshopgateway_rampnetwork_change_order_status_callback( $request ) {
     $order_id = absint($request->get_param( 'order_id' ));
-	$hrs_rampnetworkgetnonce = sanitize_text_field($request->get_param( 'nonce' ));
+	$highriskshopgateway_rampnetworkgetnonce = sanitize_text_field($request->get_param( 'nonce' ));
 	
 	 // Verify nonce
-    if ( empty( $hrs_rampnetworkgetnonce ) || ! wp_verify_nonce( $hrs_rampnetworkgetnonce, 'hrs_rampnetwork_nonce_' . $order_id ) ) {
+    if ( empty( $highriskshopgateway_rampnetworkgetnonce ) || ! wp_verify_nonce( $highriskshopgateway_rampnetworkgetnonce, 'highriskshopgateway_rampnetwork_nonce_' . $order_id ) ) {
         return new WP_Error( 'invalid_nonce', __( 'Invalid nonce.', 'highriskshop-instant-payment-gateway-rampnetwork' ), array( 'status' => 403 ) );
     }
 

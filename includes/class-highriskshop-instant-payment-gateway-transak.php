@@ -3,9 +3,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('plugins_loaded', 'init_hrs_transak_gateway');
+add_action('plugins_loaded', 'init_highriskshopgateway_transak_gateway');
 
-function init_hrs_transak_gateway() {
+function init_highriskshopgateway_transak_gateway() {
     if (!class_exists('WC_Payment_Gateway')) {
         return;
     }
@@ -70,34 +70,34 @@ class HighRiskShop_Instant_Payment_Gateway_Transak extends WC_Payment_Gateway {
     }
     public function process_payment($order_id) {
         $order = wc_get_order($order_id);
-        $hrs_transakcom_currency = get_woocommerce_currency();
-		$hrs_transakcom_total = $order->get_total();
-		$hrs_transakcom_nonce = wp_create_nonce( 'hrs_transakcom_nonce_' . $order_id );
-		$hrs_transakcom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $hrs_transakcom_nonce,), rest_url('custom-route/v1/hrs-transakcom/'));
-		$hrs_transakcom_email = urlencode(sanitize_email($order->get_billing_email()));
-		$hrs_transakcom_final_total = $hrs_transakcom_total;
+        $highriskshopgateway_transakcom_currency = get_woocommerce_currency();
+		$highriskshopgateway_transakcom_total = $order->get_total();
+		$highriskshopgateway_transakcom_nonce = wp_create_nonce( 'highriskshopgateway_transakcom_nonce_' . $order_id );
+		$highriskshopgateway_transakcom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_transakcom_nonce,), rest_url('custom-route/v1/hrs-transakcom/'));
+		$highriskshopgateway_transakcom_email = urlencode(sanitize_email($order->get_billing_email()));
+		$highriskshopgateway_transakcom_final_total = $highriskshopgateway_transakcom_total;
 	
-$hrs_transakcom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->transakcom_wallet_address .'&callback=' . urlencode($hrs_transakcom_callback));
+$highriskshopgateway_transakcom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->transakcom_wallet_address .'&callback=' . urlencode($highriskshopgateway_transakcom_callback));
 
-if (is_wp_error($hrs_transakcom_gen_wallet)) {
+if (is_wp_error($highriskshopgateway_transakcom_gen_wallet)) {
     // Handle error
     wc_add_notice(__('Wallet error:', 'woocommerce') . __('Payment could not be processed due to incorrect payout wallet settings, please contact website admin', 'hrstransakcom'), 'error');
     return null;
 } else {
-	$hrs_transakcom_wallet_body = wp_remote_retrieve_body($hrs_transakcom_gen_wallet);
-	$hrs_transakcom_wallet_decbody = json_decode($hrs_transakcom_wallet_body, true);
+	$highriskshopgateway_transakcom_wallet_body = wp_remote_retrieve_body($highriskshopgateway_transakcom_gen_wallet);
+	$highriskshopgateway_transakcom_wallet_decbody = json_decode($highriskshopgateway_transakcom_wallet_body, true);
 
  // Check if decoding was successful
-    if ($hrs_transakcom_wallet_decbody && isset($hrs_transakcom_wallet_decbody['address_in'])) {
+    if ($highriskshopgateway_transakcom_wallet_decbody && isset($highriskshopgateway_transakcom_wallet_decbody['address_in'])) {
         // Store the address_in as a variable
-        $hrs_transakcom_gen_addressIn = wp_kses_post($hrs_transakcom_wallet_decbody['address_in']);
-        $hrs_transakcom_gen_polygon_addressIn = sanitize_text_field($hrs_transakcom_wallet_decbody['polygon_address_in']);
-		$hrs_transakcom_gen_callback = sanitize_url($hrs_transakcom_wallet_decbody['callback_url']);
+        $highriskshopgateway_transakcom_gen_addressIn = wp_kses_post($highriskshopgateway_transakcom_wallet_decbody['address_in']);
+        $highriskshopgateway_transakcom_gen_polygon_addressIn = sanitize_text_field($highriskshopgateway_transakcom_wallet_decbody['polygon_address_in']);
+		$highriskshopgateway_transakcom_gen_callback = sanitize_url($highriskshopgateway_transakcom_wallet_decbody['callback_url']);
 		// Save $transakcomresponse in order meta data
-    $order->update_meta_data('highriskshop_transakcom_tracking_address', $hrs_transakcom_gen_addressIn);
-    $order->update_meta_data('highriskshop_transakcom_polygon_temporary_order_wallet_address', $hrs_transakcom_gen_polygon_addressIn);
-    $order->update_meta_data('highriskshop_transakcom_callback', $hrs_transakcom_gen_callback);
-	$order->update_meta_data('highriskshop_transakcom_converted_amount', $hrs_transakcom_final_total);
+    $order->update_meta_data('highriskshop_transakcom_tracking_address', $highriskshopgateway_transakcom_gen_addressIn);
+    $order->update_meta_data('highriskshop_transakcom_polygon_temporary_order_wallet_address', $highriskshopgateway_transakcom_gen_polygon_addressIn);
+    $order->update_meta_data('highriskshop_transakcom_callback', $highriskshopgateway_transakcom_gen_callback);
+	$order->update_meta_data('highriskshop_transakcom_converted_amount', $highriskshopgateway_transakcom_final_total);
     $order->save();
     } else {
         wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed, please try again (wallet address error)', 'transakcom'), 'error');
@@ -109,7 +109,7 @@ if (is_wp_error($hrs_transakcom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $hrs_transakcom_gen_addressIn . '&amount=' . (float)$hrs_transakcom_final_total . '&provider=transak&email=' . $hrs_transakcom_email . '&currency=' . $hrs_transakcom_currency,
+            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_transakcom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_transakcom_final_total . '&provider=transak&email=' . $highriskshopgateway_transakcom_email . '&currency=' . $highriskshopgateway_transakcom_currency,
         );
     }
 
@@ -123,23 +123,23 @@ add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gat
 }
 
 // Add custom endpoint for changing order status
-function hrs_transakcom_change_order_status_rest_endpoint() {
+function highriskshopgateway_transakcom_change_order_status_rest_endpoint() {
     // Register custom route
     register_rest_route( 'custom-route/v1', '/hrs-transakcom/', array(
         'methods'  => 'GET',
-        'callback' => 'hrs_transakcom_change_order_status_callback',
+        'callback' => 'highriskshopgateway_transakcom_change_order_status_callback',
         'permission_callback' => '__return_true',
     ));
 }
-add_action( 'rest_api_init', 'hrs_transakcom_change_order_status_rest_endpoint' );
+add_action( 'rest_api_init', 'highriskshopgateway_transakcom_change_order_status_rest_endpoint' );
 
 // Callback function to change order status
-function hrs_transakcom_change_order_status_callback( $request ) {
+function highriskshopgateway_transakcom_change_order_status_callback( $request ) {
     $order_id = absint($request->get_param( 'order_id' ));
-	$hrs_transakcomgetnonce = sanitize_text_field($request->get_param( 'nonce' ));
+	$highriskshopgateway_transakcomgetnonce = sanitize_text_field($request->get_param( 'nonce' ));
 	
 	 // Verify nonce
-    if ( empty( $hrs_transakcomgetnonce ) || ! wp_verify_nonce( $hrs_transakcomgetnonce, 'hrs_transakcom_nonce_' . $order_id ) ) {
+    if ( empty( $highriskshopgateway_transakcomgetnonce ) || ! wp_verify_nonce( $highriskshopgateway_transakcomgetnonce, 'highriskshopgateway_transakcom_nonce_' . $order_id ) ) {
         return new WP_Error( 'invalid_nonce', __( 'Invalid nonce.', 'highriskshop-instant-payment-gateway-transak' ), array( 'status' => 403 ) );
     }
 
