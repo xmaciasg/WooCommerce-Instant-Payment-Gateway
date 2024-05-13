@@ -132,7 +132,7 @@ if (is_wp_error($highriskshopgateway_wertio_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_wertio_gen_addressIn . '&amount=' . (float)$highriskshopgateway_wertio_final_total . '&provider=wert&email=' . $highriskshopgateway_wertio_email . '&currency=' . $highriskshopgateway_wertio_currency,
+            'redirect' => 'https://pay.highriskshop.com/process-payment.php?address=' . $highriskshopgateway_wertio_gen_addressIn . '&amount=' . (float)$highriskshopgateway_wertio_final_total . '&provider=wert&email=' . $highriskshopgateway_wertio_email . '&currency=' . $highriskshopgateway_wertio_currency,
         );
     }
 

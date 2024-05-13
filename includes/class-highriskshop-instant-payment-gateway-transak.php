@@ -109,7 +109,7 @@ if (is_wp_error($highriskshopgateway_transakcom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_transakcom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_transakcom_final_total . '&provider=transak&email=' . $highriskshopgateway_transakcom_email . '&currency=' . $highriskshopgateway_transakcom_currency,
+            'redirect' => 'https://pay.highriskshop.com/process-payment.php?address=' . $highriskshopgateway_transakcom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_transakcom_final_total . '&provider=transak&email=' . $highriskshopgateway_transakcom_email . '&currency=' . $highriskshopgateway_transakcom_currency,
         );
     }
 

@@ -109,7 +109,7 @@ if (is_wp_error($highriskshopgateway_moonpaycom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_moonpaycom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_moonpaycom_final_total . '&provider=moonpay&email=' . $highriskshopgateway_moonpaycom_email . '&currency=' . $highriskshopgateway_moonpaycom_currency,
+            'redirect' => 'https://pay.highriskshop.com/process-payment.php?address=' . $highriskshopgateway_moonpaycom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_moonpaycom_final_total . '&provider=moonpay&email=' . $highriskshopgateway_moonpaycom_email . '&currency=' . $highriskshopgateway_moonpaycom_currency,
         );
     }
 

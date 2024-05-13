@@ -4,7 +4,7 @@ Donate link: http://www.highriskshop.com/
 Tags: woocommerce,payment,instant,gateway
 Requires at least: 3.8
 Tested up to: 6.5
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 5.2.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,10 +26,11 @@ Powerful plugin for both WooCommerce that allows you to accept payments for your
 * New temporary wallet assigned for each order for privacy and precise payment.
 * Automatic order processing (order will be marked as paid automatically after payment).
 * Track payouts from wp-admin
-* Minimum order amount starts from $5 USD only for some providers.
+* Minimum order amount starts from $1 USD only for some providers.
 * Customizable payment gateway icon for each provider.
+* Multi-currency support
 
-[youtube https://www.youtube.com/watch?v=xt0o7J9MVd4]
+[youtube https://www.youtube.com/watch?v=cryJl7m4yqI]
 
 The plugin and offered service through [HighRiskShop.COM Instant Payment Gateway API](https://www.highriskshop.com/instant-payment-gateway/) is subject to the [service terms](https://www.highriskshop.com/info/terms/) and [Privacy Policy](https://www.highriskshop.com/info/privacy-policy/).
 
@@ -54,6 +55,11 @@ No, the plugin is available to be used to accept credit card payments instantly 
 = When will I receive payouts? =
 
 You will receive payouts instantly to your USDT wallet with every order.
+
+= How to fix There Are No Payment Methods Available Error? =
+
+Follow the guide to [Fix WooCommerce There Are No Payment Methods Available Error](https://www.highriskshop.com/fix-woocommerce-there-are-no-payment-methods-available-error/)
+
 
 = I have a problem with one of my orders? =
 

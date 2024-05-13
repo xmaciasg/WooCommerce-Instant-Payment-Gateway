@@ -110,7 +110,7 @@ if (is_wp_error($highriskshopgateway_mercuryoio_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_mercuryoio_gen_addressIn . '&amount=' . (float)$highriskshopgateway_mercuryoio_final_total . '&provider=mercuryo&email=' . $highriskshopgateway_mercuryoio_email . '&currency=' . $highriskshopgateway_mercuryoio_currency,
+            'redirect' => 'https://pay.highriskshop.com/process-payment.php?address=' . $highriskshopgateway_mercuryoio_gen_addressIn . '&amount=' . (float)$highriskshopgateway_mercuryoio_final_total . '&provider=mercuryo&email=' . $highriskshopgateway_mercuryoio_email . '&currency=' . $highriskshopgateway_mercuryoio_currency,
         );
     }
 

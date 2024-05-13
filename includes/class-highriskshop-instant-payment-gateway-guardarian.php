@@ -109,7 +109,7 @@ if (is_wp_error($highriskshopgateway_guardariancom_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_guardariancom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_guardariancom_final_total . '&provider=guardarian&email=' . $highriskshopgateway_guardariancom_email . '&currency=' . $highriskshopgateway_guardariancom_currency,
+            'redirect' => 'https://pay.highriskshop.com/process-payment.php?address=' . $highriskshopgateway_guardariancom_gen_addressIn . '&amount=' . (float)$highriskshopgateway_guardariancom_final_total . '&provider=guardarian&email=' . $highriskshopgateway_guardariancom_email . '&currency=' . $highriskshopgateway_guardariancom_currency,
         );
     }
 

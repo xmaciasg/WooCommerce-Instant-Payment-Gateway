@@ -132,7 +132,7 @@ if (is_wp_error($highriskshopgateway_rampnetwork_gen_wallet)) {
         // Redirect to payment page
         return array(
             'result'   => 'success',
-            'redirect' => 'https://api.highriskshop.com/control/process-payment.php?address=' . $highriskshopgateway_rampnetwork_gen_addressIn . '&amount=' . (float)$highriskshopgateway_rampnetwork_final_total . '&provider=rampnetwork&email=' . $highriskshopgateway_rampnetwork_email . '&currency=' . $highriskshopgateway_rampnetwork_currency,
+            'redirect' => 'https://pay.highriskshop.com/process-payment.php?address=' . $highriskshopgateway_rampnetwork_gen_addressIn . '&amount=' . (float)$highriskshopgateway_rampnetwork_final_total . '&provider=rampnetwork&email=' . $highriskshopgateway_rampnetwork_email . '&currency=' . $highriskshopgateway_rampnetwork_currency,
         );
     }
 
