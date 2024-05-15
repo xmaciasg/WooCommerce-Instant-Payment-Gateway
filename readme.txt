@@ -4,7 +4,7 @@ Donate link: http://www.highriskshop.com/
 Tags: woocommerce,payment,instant,gateway
 Requires at least: 3.8
 Tested up to: 6.5
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 5.2.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -29,6 +29,8 @@ Powerful plugin for both WooCommerce that allows you to accept payments for your
 * Minimum order amount starts from $1 USD only for some providers.
 * Customizable payment gateway icon for each provider.
 * Multi-currency support
+
+Minimum allowed order amount varies per payment provider you can [check the full list of minimum order value per payment provider](https://www.highriskshop.com/instant-payment-gateway/#minimumorder).
 
 [youtube https://www.youtube.com/watch?v=cryJl7m4yqI]
 

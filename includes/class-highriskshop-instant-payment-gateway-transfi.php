@@ -3,9 +3,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('plugins_loaded', 'init_highriskshopgateway_transfi_gateway');
+add_action('plugins_loaded', 'init_highriskshopgateway_transficom_gateway');
 
-function init_highriskshopgateway_transfi_gateway() {
+function init_highriskshopgateway_transficom_gateway() {
     if (!class_exists('WC_Payment_Gateway')) {
         return;
     }
@@ -75,8 +75,31 @@ class HighRiskShop_Instant_Payment_Gateway_Transfi extends WC_Payment_Gateway {
 		$highriskshopgateway_transficom_nonce = wp_create_nonce( 'highriskshopgateway_transficom_nonce_' . $order_id );
 		$highriskshopgateway_transficom_callback = add_query_arg(array('order_id' => $order_id, 'nonce' => $highriskshopgateway_transficom_nonce,), rest_url('highriskshopgateway/v1/highriskshopgateway-transficom/'));
 		$highriskshopgateway_transficom_email = urlencode(sanitize_email($order->get_billing_email()));
-		$highriskshopgateway_transficom_final_total = $highriskshopgateway_transficom_total;
-	
+		
+		if ($highriskshopgateway_transficom_currency === 'USD') {
+        $highriskshopgateway_transficom_final_total = $highriskshopgateway_transficom_total;
+		} else {
+		
+$highriskshopgateway_transficom_response = wp_remote_get('https://api.highriskshop.com/control/convert.php?value=' . $highriskshopgateway_transficom_total . '&from=' . strtolower($highriskshopgateway_transficom_currency));
+
+if (is_wp_error($highriskshopgateway_transficom_response)) {
+    // Handle error
+    wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed due to failed currency conversion process, please try again', 'hrstransficom'), 'error');
+    return null;
+} else {
+
+$highriskshopgateway_transficom_body = wp_remote_retrieve_body($highriskshopgateway_transficom_response);
+$highriskshopgateway_transficom_conversion_resp = json_decode($highriskshopgateway_transficom_body, true);
+
+if ($highriskshopgateway_transficom_conversion_resp && isset($highriskshopgateway_transficom_conversion_resp['value_coin'])) {
+    // Escape output
+    $highriskshopgateway_transficom_final_total	= sanitize_text_field($highriskshopgateway_transficom_conversion_resp['value_coin']);      
+} else {
+    wc_add_notice(__('Payment error:', 'woocommerce') . __('Payment could not be processed, please try again (unsupported store currency)', 'hrstransficom'), 'error');
+    return null;
+}	
+		}
+		}
 $highriskshopgateway_transficom_gen_wallet = wp_remote_get('https://api.highriskshop.com/control/wallet.php?address=' . $this->transficom_wallet_address .'&callback=' . urlencode($highriskshopgateway_transficom_callback));
 
 if (is_wp_error($highriskshopgateway_transficom_gen_wallet)) {
@@ -115,11 +138,11 @@ if (is_wp_error($highriskshopgateway_transficom_gen_wallet)) {
 
 }
 
-function highriskshop_add_instant_payment_gateway_transfi($gateways) {
+function highriskshop_add_instant_payment_gateway_transficom($gateways) {
     $gateways[] = 'HighRiskShop_Instant_Payment_Gateway_Transfi';
     return $gateways;
 }
-add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gateway_transfi');
+add_filter('woocommerce_payment_gateways', 'highriskshop_add_instant_payment_gateway_transficom');
 }
 
 // Add custom endpoint for changing order status
